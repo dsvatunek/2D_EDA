@@ -1,7 +1,6 @@
 """
-ADF Input File Generator
+ADF get orbital overlap
 Author: Dennis Svatunek
-
 
 Description:
 This script reads orbital overlaps from EDA calculations
