@@ -1,0 +1,71 @@
+"""
+ADF print in polar coordinates
+Author: Dennis Svatunek
+Date: 2023-08-09
+
+Description:
+This script prints EDA energy components in polar coordinates
+"""
+
+import matplotlib.pyplot as plt
+import os
+import csv
+import numpy as np
+
+# Load the data from the CSV file
+csv_file = 'results.csv'
+
+# Read the data from the file
+raw_data = []
+energy_columns = ['Total Pauli Repulsion', 'Electrostatic Interaction', 'Total Orbital Interactions',
+                  'Total Interaction Energy', 'Strain Fragment1', 'Strain Fragment2', 'Total Strain', 'Relative Energy']
+
+with open(csv_file, 'r') as file:
+    reader = csv.reader(file)
+    header = next(reader)  # Skip the header
+    
+    # Read and parse each row
+    for row in reader:
+        angle = float(row[2])  # Angle 2-1-11
+        distance = float(row[1])  # Distance 1-11
+        energies = [float(row[i]) for i, energy_col in enumerate(energy_columns, start=3)]
+        raw_data.append((distance, angle, *energies))
+
+# Sort the data by distance and angle
+sorted_data = sorted(raw_data)
+
+# Number of unique angle and distance values
+n_angle = len(set(x[1] for x in sorted_data))
+n_distance = len(set(x[0] for x in sorted_data))
+print(n_angle)
+print(n_distance)
+
+# Create directory for plots if it doesn't exist
+plot_directory = 'angle_plots'
+os.makedirs(plot_directory, exist_ok=True)
+
+# Create contour plots
+for j, energy_column in enumerate(energy_columns):
+    plt.figure(figsize=(10, 6))
+    
+    # Reshape data to 2D array
+    z_values = np.array([x[j + 2] for x in sorted_data]).reshape((n_distance, n_angle))
+    
+    # Contour plot
+    plt.contourf(sorted(set(x[1] for x in sorted_data)), sorted(set(x[0] for x in sorted_data)), z_values, cmap='rainbow', levels=100)
+    
+    # Add a colorbar
+    plt.colorbar(label=energy_column)
+    
+    # Label axes
+    plt.xlabel('Angle (2-1-11)')
+    plt.ylabel('Distance (1-11)')
+    plt.title(f'Contour Plot of Angle vs Distance for {energy_column}')
+    
+    # Set x-axis and y-axis limits
+    plt.xlim(155, 70)  # Angle limits (reversed because x-axis is inverted)
+    plt.ylim(1.25, 2.95)  # Distance limits
+    
+    # Save figure
+    plt.savefig(os.path.join(plot_directory, f'{energy_column.replace(" ", "_")}_contour.png'))
+    plt.close()
