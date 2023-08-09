@@ -1,7 +1,6 @@
 """
 EDA data collector
 Author: Dennis Svatunek
-Date: 2023-08-09
 
 Description:
 This script reads EDA energy components from the EDA results and compiles into CSV.
